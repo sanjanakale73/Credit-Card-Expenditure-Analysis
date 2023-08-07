@@ -1,4 +1,4 @@
-# Credit-Card-Expenditure-Analysis
+# Credit-Card-Expenditure-Analysis ( SAS, Statistical Analysis )
 
 ## Description:
 • Designed best-fit regression model in SAS to understand factors affecting average monthly credit card expenditures.
