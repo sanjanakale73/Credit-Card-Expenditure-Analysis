@@ -1,0 +1,59 @@
+Data a1;
+Infile 'E:\Users\sxk200056\Desktop\creditcard.txt'firstobs=2;
+Input MDR Acc Age  Income  Avgexp  Ownrent Selfempl;
+run;
+proc print data=a1;run;
+
+/* Q1 Basic Statistics */
+proc means data=a1;
+var age income avgexp;
+run; 
+proc freq data=a1;
+table mdr acc ownrent selfempl;
+run;
+
+/* Q2 Correlations between the independent variables */
+proc corr data=a1;
+var mdr acc age income ownrent selfempl;
+run;
+
+
+data a2;
+set a1;
+if acc = 1;
+income_ownrent = income*ownrent;
+run;
+
+/* Q3 Regression model to explain average monthly credit card expenditure.*/
+PROC REG data=a2;
+MODEL avgexp = mdr age income ownrent selfempl;
+RUN;
+
+/* Q4 Checking the Standardized beta coefficient to find out which variable are most important*/
+PROC REG data=a2;
+MODEL avgexp = mdr age income ownrent selfempl / STB;
+RUN;
+
+/* Q5 Test for the presence of nonlinearity effect for income variable*/
+proc model data=a2;
+parms b0 b1 b2;
+avgexp=b0+b1*income+ b2*(income*income);
+fit avgexp;run;
+
+
+/* Q6 Test of one interection effect bewteen income and ownrent*/
+PROC REG data=a2;
+MODEL avgexp = income ownrent income_ownrent;
+RUN;
+
+/* Q7 Diagnostics for multicollinearity (VIF, COLLIN)*/
+PROC REG data=a2;
+MODEL avgexp = mdr age income ownrent selfempl / vif collinoint;
+RUN;
+
+/* Q8 WHITE Test for Heteroscedasticity*/
+proc model data=a2;
+parms b0 b1 b2 b3 b4 b5;
+avgexp=b0+b1*mdr+ b2*age+ b3*income+ b4*ownrent+ b5*selfempl;
+fit avgexp / white out=resid1 outresid;run;
+/* There is no evidence of Heteroscadecity so, no need of WLS */
